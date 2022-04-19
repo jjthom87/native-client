@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Distance Between Two</title>
+  </head>
+  <body>
+
+  </body>
+  <script type="text/javascript">
+    function initMap() {
+      var columbia = {lat: 4.570868, lng: -74.297333};
+      var argentina = {lat:-38.416097, lng:-63.616672};
+      var distanceBetween = google.maps.geometry.spherical.computeDistanceBetween(columbia, argentina);
+      console.log("distance between columbia and argentina is " + distanceBetween + " meters.")
+      console.log("distance between columbia and argentina is " + (distanceBetween * 0.00062137) + " miles.");
+      //https://developers.google.com/maps/documentation/javascript/reference/geometry#spherical.computeDistanceBetween
+    }
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=&libraries=geometry&callback=initMap"></script>
+</html>
