@@ -19,7 +19,7 @@ const SignupScreen = ({ navigation, route }) => {
         if(response.data.user){
           var {email, token} = response.data.user;
           Keychain.setGenericPassword(email, token).then(function() {
-            navigation.navigate('Home')
+            navigation.navigate('Main')
           }).catch((error) => {
             console.log(error)
             console.log("Error during Keychain Signup");
@@ -39,7 +39,7 @@ const SignupScreen = ({ navigation, route }) => {
              <Button
                title="Go to Home Page"
                onPress={() =>
-                 navigation.navigate('Home', { name: 'Jane' })
+                 navigation.push('Main')
                }
              />
             <TextInput style = {styles.input}

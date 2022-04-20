@@ -1,11 +1,10 @@
-import React, { Component, useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, TouchableHighlight, Button } from 'react-native'
-import axios from 'axios';
+import React, { Component, useEffect, useState } from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native';
 import * as Keychain from 'react-native-keychain';
+import axios from 'axios';
 
-const HomeScreen = ({ navigation, route }) => {
+const MainScreen = ({ navigation, route }) => {
   const [authUser, setAuthUser] = useState(false);
-  const [user, setUser] = useState('');
 
   useEffect(() => {
     Keychain.getGenericPassword().then((credentials) => {
@@ -13,35 +12,58 @@ const HomeScreen = ({ navigation, route }) => {
       axios.get('http://localhost:7000/api/signed-in', {
         headers: {authorization: password}
       }).then((response) => {
-        setAuthUser(true)
-        setUser(response.data.user)
+        if(response.config.data != undefined){
+          setAuthUser(true)
+          navigation.push("Home")
+        } else {
+          Keychain.resetGenericPassword();
+        }
       }).catch((err) => {
-        navigation.push("Main")
+        console.log("no logged in user")
+        console.log(err)
       })
     })
   }, [authUser])
   signOut = () => {
     Keychain.resetGenericPassword();
     return axios.delete("http://localhost:7000/api/logout").then((response) => {
-      navigation.push("Main")
+      setAuthUser(false)
     }).catch((error) => {
       console.log("Error during Signout")
     })
   }
-  render: {
-    return (
-      <View>
-        <Text>Welcome {user.email}</Text>
+  renderAuth = () => {
+    if(authUser){
+      return (
         <Button
           title="Logout"
           style={styles.logoutButton}
           onPress={() => this.signOut()}
         />
+      )
+    } else {
+      return ( <View></View> )
+    }
+  }
+  render: {
+    return (
+      <View>
+        <Button
+          title="Sign Up"
+          onPress={() =>
+            navigation.push('Signup')
+          }
+        />
+        <Button
+          title="Sign In"
+          onPress={() =>
+            navigation.push('Signin')
+          }
+        />
       </View>
     )
   }
-}
-export default HomeScreen
+};
 
 const styles = StyleSheet.create({
    logoutButton: {
@@ -52,3 +74,5 @@ const styles = StyleSheet.create({
       height: 40,
    }
 })
+
+export default MainScreen

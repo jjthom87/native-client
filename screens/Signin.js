@@ -1,9 +1,13 @@
-import React, { Component } from 'react'
+import React, { Component, useEffect } from 'react'
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, TouchableHighlight, Button } from 'react-native'
 import axios from 'axios';
 import * as Keychain from 'react-native-keychain';
 
 const SigninScreen = ({ navigation, route }) => {
+   useEffect(() => {
+     this.state.email = '';
+     this.state.password = '';
+   }, [])
    state = {
       email: '',
       password: ''
@@ -15,11 +19,11 @@ const SigninScreen = ({ navigation, route }) => {
       this.state.password = text
    }
    signIn = (email, password) => {
-      return axios.post("http://localhost:7000/api/sign-in", {email, password}).then((response) => {
+      return axios.post("http://localhost:7000/api/sign-in", {email, password}).then(async (response) => {
         if(response.data.user){
           var {email, token} = response.data.user;
-          Keychain.setGenericPassword(email, token).then(function() {
-            navigation.navigate('Home')
+          await Keychain.setGenericPassword(email, token).then(function() {
+            navigation.push('Home')
           }).catch((error) => {
             console.log(error)
             console.log("error during Keychain Signin")
@@ -39,7 +43,7 @@ const SigninScreen = ({ navigation, route }) => {
              <Button
                title="Go to Home Page"
                onPress={() =>
-                 navigation.navigate('Home', { name: 'Jane' })
+                 navigation.push('Main')
                }
              />
             <TextInput style = {styles.input}
