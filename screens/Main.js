@@ -12,7 +12,7 @@ const MainScreen = ({ navigation, route }) => {
       axios.get('http://localhost:7000/api/signed-in', {
         headers: {authorization: password}
       }).then((response) => {
-        if(response.config.data != undefined){
+        if(response.data != undefined){
           setAuthUser(true)
           navigation.push("Home")
         } else {

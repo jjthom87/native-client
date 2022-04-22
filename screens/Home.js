@@ -21,20 +21,26 @@ const HomeScreen = ({ navigation, route }) => {
     })
   }, [authUser])
   signOut = () => {
-    Keychain.resetGenericPassword();
-    return axios.delete("http://localhost:7000/api/logout").then((response) => {
-      navigation.push("Main")
-    }).catch((error) => {
-      console.log("Error during Signout")
+    Keychain.resetGenericPassword().then((res) => {
+      axios.delete("http://localhost:7000/api/logout").then((response) => {
+        navigation.push("Main")
+      }).catch((error) => {
+        console.log("Error during Signout")
+      })
+    }).catch((err) => {
+      console.log("Error during keychain reset")
     })
   }
   render: {
     return (
-      <View>
+      <View style={styles.container}>
         <Text>Welcome {user.email}</Text>
+        <TouchableOpacity style = {styles.createItineraryButton}>
+           <Text onPress={() => navigation.push('CreateItinerary')} style = {styles.createItineraryButtonText}>Create Itinerary</Text>
+        </TouchableOpacity>
         <Button
           title="Logout"
-          style={styles.logoutButton}
+          buttonStyle={styles.logoutButton}
           onPress={() => this.signOut()}
         />
       </View>
@@ -44,9 +50,27 @@ const HomeScreen = ({ navigation, route }) => {
 export default HomeScreen
 
 const styles = StyleSheet.create({
+   container: {
+       paddingTop: 23
+   },
+   createItineraryButton: {
+     backgroundColor: "#501fe0",
+     padding: 10,
+     margin: 15,
+     height: 40,
+   },
+   createItineraryButtonText: {
+     color: "black"
+   },
    logoutButton: {
-      backgroundColor: 'red',
+      backgroundColor: '#1E6738',
       color: 'white',
+      padding: 10,
+      margin: 15,
+      height: 40,
+   },
+   mainButton: {
+      backgroundColor: '#1E6738',
       padding: 10,
       margin: 15,
       height: 40,
