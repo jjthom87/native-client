@@ -8,12 +8,13 @@ const CreateItinerary = ({ navigation, route }) => {
   const [usersRecs, setUsersRecs] = useState([]);
   const [googlePlacesSearchResults, setGooglePlacesSearchResults] = useState([]);
   const [itinerary, setItinerary] = useState([]);
+  const [itineraryName, setItineraryName] = useState();
 
   const GOOGLE_PLACES_API_BASE_URL = 'https://maps.googleapis.com/maps/api/place'
 
   useEffect(() => {
   }, [])
-  handleInputChange = async function(text){
+  handlePlaceInputChange = async function(text){
     const apiUrl = `${GOOGLE_PLACES_API_BASE_URL}/autocomplete/json?key=${Config.GOOGLE_API_KEY}&input=${text}`
 
       try {
@@ -25,6 +26,9 @@ const CreateItinerary = ({ navigation, route }) => {
         console.log(e)
       }
   }
+  handleItineraryNameInputChange = function(text){
+    setItineraryName(text)
+  }
   handleGooglePlaceClick = async (autocompleteResult) => {
     const apiUrl = `${GOOGLE_PLACES_API_BASE_URL}/details/json?place_id=${autocompleteResult.place_id}&key=${Config.GOOGLE_API_KEY}`
     try {
@@ -32,11 +36,34 @@ const CreateItinerary = ({ navigation, route }) => {
       if (placeResult) {
         const addedItinerary = {name: placeResult.data.result.name, place_id: placeResult.data.result.place_id}
         setItinerary(currentItinerary => [...currentItinerary, addedItinerary])
-        console.log(itinerary)
       }
     } catch (e) {
       console.log(e)
     }
+  }
+  handleDeleteDraftItineraryItem = (place_id) => {
+    const updatedItinerary = itinerary.filter((item) => item.place_id != place_id)
+    setItinerary(updatedItinerary)
+  }
+  handleCreateItinerary = () => {
+    Keychain.getGenericPassword().then((credentials) => {
+      var {username, password} = credentials;
+      axios.post("http://localhost:7000/api/itinerary",
+      JSON.stringify({
+        itineraryName: itineraryName,
+        details: itinerary
+      }), {
+          headers: {
+            authorization: password,
+            'Content-Type': 'application/json'
+          }
+        }).then((response) => {
+        // console.log(response)
+  		}).catch((error) => {
+        // console.log(error)
+  			console.log("Error during Signin")
+  		})
+    })
   }
   render: {
      return (
@@ -49,8 +76,8 @@ const CreateItinerary = ({ navigation, route }) => {
            />
            <TextInput
              style={styles.input}
-             placeholder="Type here to translate!"
-             onChangeText={this.handleInputChange}
+             placeholder="Search Places"
+             onChangeText={this.handlePlaceInputChange}
            />
            <View>
              {
@@ -66,14 +93,43 @@ const CreateItinerary = ({ navigation, route }) => {
            </View>
            <View style={styles.itinerarySection}>
               <Text style={styles.itinerarySectionHeaderText}>Itinerary</Text>
-              {
-                itinerary.length > 0 ?
-                  itinerary.map((place, index) => {
-                    return (
-                      <Text key={place.place_id}>{place.name}</Text>
-                    )
-                  }) : <View></View>
-              }
+              <View style={styles.draftItinerary}>
+                {
+                  itinerary.length > 0 ?
+                    itinerary.map((place, index) => {
+                      return (
+                        <View style={styles.draftItineraryItem}>
+                            <Text>
+                              <Text style={styles.draftItineraryItemText} key={place.place_id}>{place.name}</Text>
+                              <TouchableOpacity>
+                                <Text
+                                  style={styles.deleteDraftItineraryItem}
+                                  key={place.place_id}
+                                  onPress={() => this.handleDeleteDraftItineraryItem(place.place_id)}>X</Text>
+                              </TouchableOpacity>
+                            </Text>
+                        </View>
+                      )
+                    }) : <View></View>
+                }
+                {
+                  itinerary.length > 0 ?
+                    <View>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Itinerary Name"
+                        onChangeText={this.handleItineraryNameInputChange}
+                      />
+                      <TouchableOpacity
+                         style = {styles.createItineraryButton}
+                         onPress = {() => this.handleCreateItinerary()}
+                      >
+                         <Text style = {styles.createItineraryButtonText}>Create Itinerary</Text>
+                      </TouchableOpacity>
+                    </View> :
+                    <View></View>
+                }
+              </View>
            </View>
          </View>
      )
@@ -102,5 +158,23 @@ const styles = StyleSheet.create({
   },
   itinerarySectionHeaderText: {
     fontSize: 18
+  },
+  draftItinerary: {
+    margin: 1
+  },
+  draftItineraryItem: {
+  },
+  draftItineraryItemText: {
+  },
+  deleteDraftItineraryItem: {
+  },
+  createItineraryButton: {
+     backgroundColor: '#7a42f4',
+     padding: 10,
+     margin: 15,
+     height: 40,
+  },
+  createItineraryButtonText:{
+     color: 'white'
   }
 })
