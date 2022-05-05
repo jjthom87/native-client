@@ -38,6 +38,9 @@ const HomeScreen = ({ navigation, route }) => {
         <TouchableOpacity style = {styles.createItineraryButton}>
            <Text onPress={() => navigation.push('Create Itinerary')} style = {styles.createItineraryButtonText}>Create Itinerary</Text>
         </TouchableOpacity>
+        <TouchableOpacity style = {styles.createItineraryButton}>
+           <Text onPress={() => navigation.push('List Itineraries')} style = {styles.createItineraryButtonText}>List Itineraries</Text>
+        </TouchableOpacity>
         <Button
           title="Logout"
           buttonStyle={styles.logoutButton}
