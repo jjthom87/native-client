@@ -17,14 +17,14 @@ const CreateItinerary = ({ navigation, route }) => {
   handlePlaceInputChange = async function(text){
     const apiUrl = `${GOOGLE_PLACES_API_BASE_URL}/autocomplete/json?key=${Config.GOOGLE_API_KEY}&input=${text}`
 
-      try {
-        const result = await axios.get(apiUrl)
-        if (result) {
-          setGooglePlacesSearchResults(result.data.predictions)
-        }
-      } catch (e) {
-        console.log(e)
+    try {
+      const result = await axios.get(apiUrl)
+      if (result) {
+        setGooglePlacesSearchResults(result.data.predictions)
       }
+    } catch (e) {
+      console.log(e)
+    }
   }
   handleItineraryNameInputChange = function(text){
     setItineraryName(text)

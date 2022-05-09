@@ -3,23 +3,29 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet, TouchableHighlight
 import axios from 'axios';
 import * as Keychain from 'react-native-keychain';
 
-const HomeScreen = ({ navigation, route }) => {
-  const [authUser, setAuthUser] = useState(false);
-  const [user, setUser] = useState('');
+const SearchUsersItineraries = ({ navigation, route }) => {
+  const [users, setUsers] = useState([]);
+  const [inputUserText, setInputUserText] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState([]);
 
   useEffect(() => {
-    Keychain.getGenericPassword().then((credentials) => {
-      var {username, password} = credentials;
-      axios.get('http://localhost:7000/api/signed-in', {
-        headers: {authorization: password}
-      }).then((response) => {
-        setAuthUser(true)
-        setUser(response.data.user)
-      }).catch((err) => {
-        navigation.push("Main")
-      })
+    axios.get('http://localhost:7000/api/users').then((response) => {
+      setUsers(response.data.users)
+    }).catch((err) => {
+      console.error(err)
     })
-  }, [authUser])
+  }, [])
+  handleUserInputChange = function(text){
+    if(text == ""){
+      setFilteredUsers([])
+    } else {
+      const filterUsersFromInput = users.filter((user) => user.email.includes(text.toLowerCase()))
+      setFilteredUsers(filterUsersFromInput)
+    }
+  }
+  handleUserClick = (user) => {
+    navigation.push("List Users Itineraries", {user: user})
+  }
   signOut = () => {
     Keychain.resetGenericPassword().then((res) => {
       axios.delete("http://localhost:7000/api/logout").then((response) => {
@@ -34,16 +40,21 @@ const HomeScreen = ({ navigation, route }) => {
   render: {
     return (
       <View style={styles.container}>
-        <Text>Welcome {user.email}</Text>
-        <TouchableOpacity style = {styles.createItineraryButton}>
-           <Text onPress={() => navigation.push('Create Itinerary')} style = {styles.createItineraryButtonText}>Create Itinerary</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style = {styles.createItineraryButton}>
-           <Text onPress={() => navigation.push('List Itineraries')} style = {styles.createItineraryButtonText}>List Itineraries</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style = {styles.createItineraryButton}>
-           <Text onPress={() => navigation.push('Search Users Itineraries')} style = {styles.createItineraryButtonText}>Search Users Itineraries</Text>
-        </TouchableOpacity>
+        <Text>Search Users Itineraries</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Search User"
+          onChangeText={this.handleUserInputChange}
+        />
+        {
+          filteredUsers.map((user) => {
+            return (
+              <TouchableOpacity>
+                <Text onPress={()=> this.handleUserClick(user)}>{user.email}</Text>
+              </TouchableOpacity>
+            )
+          })
+        }
         <Button
           title="Logout"
           buttonStyle={styles.logoutButton}
@@ -53,7 +64,7 @@ const HomeScreen = ({ navigation, route }) => {
     )
   }
 }
-export default HomeScreen
+export default SearchUsersItineraries
 
 const styles = StyleSheet.create({
    container: {
