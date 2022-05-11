@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet, TouchableHighlight
 import axios from 'axios';
 import * as Keychain from 'react-native-keychain';
 
-const ListUsersItinerariesScreen = ({ navigation, route }) => {
+const ListSharedItinerariesScreen = ({ navigation, route }) => {
   const [itineraries, setItineraries] = useState([]);
   const [authUser, setAuthUser] = useState(null);
   const [initialItineraryLoad, setInitialItineraryLoad] = useState(false)
@@ -14,7 +14,7 @@ const ListUsersItinerariesScreen = ({ navigation, route }) => {
       Keychain.getGenericPassword().then((credentials) => {
         var {username, password} = credentials;
         setAuthUser(username)
-        axios.get('http://localhost:7000/api/user/'+route.params.user.id+'/itinerary', {
+        axios.get('http://localhost:7000/api/itinerary/shared', {
           headers: {authorization: password}
         }).then((response) => {
           response.data.itineraries.forEach((itinerary) => {
@@ -26,26 +26,8 @@ const ListUsersItinerariesScreen = ({ navigation, route }) => {
           console.error(err)
         })
       })
-
-      Keychain.getGenericPassword().then((credentials) => {
-        var {username, password} = credentials;
-        axios.get('http://localhost:7000/api/signed-in', {
-          headers: {authorization: password}
-        }).then((response) => {
-          if(response.data != undefined){
-            setAuthUser(response.data.user)
-          } else {
-            Keychain.resetGenericPassword();
-          }
-        }).catch((err) => {
-          console.log("no logged in user")
-          console.log(err)
-        })
-      })
-
     }
-
-  },[])
+  })
   signOut = () => {
     Keychain.resetGenericPassword().then((res) => {
       axios.delete("http://localhost:7000/api/logout").then((response) => {
@@ -69,27 +51,6 @@ const ListUsersItinerariesScreen = ({ navigation, route }) => {
     })
     setItineraries(itineraries)
   }
-  handleAddItineraryClick = (itinerary_id) => {
-    Keychain.getGenericPassword().then((credentials) => {
-      var {username, password} = credentials;
-      axios.post("http://localhost:7000/api/itinerary/shared",
-          {
-            owner_id: parseInt(route.params.user.id),
-            requester_id: parseInt(authUser.id),
-            itinerary_id: parseInt(itinerary_id)
-          }, {
-            headers: {
-              authorization: password,
-              'Content-Type': 'application/json'
-          }
-        }).then((response) => {
-        // console.log(response)
-  		}).catch((error) => {
-        console.log(error)
-  			console.log("Error during Signin")
-  		})
-    })
-  }
   showItinerary = (itinerary) => {
     const display = itinerary.name == itineraryToShow ? "flex" : "none"
     return itinerary.details.map((place) => {
@@ -107,12 +68,9 @@ const ListUsersItinerariesScreen = ({ navigation, route }) => {
       return (
         <View>
           <TouchableOpacity style = {styles.itineraryNameButton}>
-             <Text onPress={() => this.handleItineraryClick(itinerary.name)} style = {styles.itineraryNameText}>{itinerary.name}
-              <Text onPress={() => this.handleAddItineraryClick(itinerary.id)} style = {styles.addItineraryText}>+</Text>
-             </Text>
+             <Text onPress={() => this.handleItineraryClick(itinerary.name)} style = {styles.itineraryNameText}>{itinerary.name} - Owned by {itinerary.owner_email}</Text>
              {showItinerary(itinerary)}
           </TouchableOpacity>
-
         </View>
       )
     })
@@ -120,7 +78,7 @@ const ListUsersItinerariesScreen = ({ navigation, route }) => {
   render: {
     return (
       <View style={styles.container}>
-        <Text>{route.params.user.email}'s Itineraries</Text>
+        <Text>{authUser}'s Itineraries</Text>
         {mapItineraries()}
         <TouchableOpacity style = {styles.homeButton}>
            <Text onPress={() => navigation.push('Home')} style = {styles.homeButtonText}>Home</Text>
@@ -134,7 +92,7 @@ const ListUsersItinerariesScreen = ({ navigation, route }) => {
     )
   }
 }
-export default ListUsersItinerariesScreen
+export default ListSharedItinerariesScreen
 
 const styles = StyleSheet.create({
    container: {
@@ -143,16 +101,10 @@ const styles = StyleSheet.create({
    itineraryNameButton: {
      backgroundColor: "#501fe0",
      padding: 10,
-     margin: 15,
-     display: "flex"
+     margin: 15
    },
    itineraryNameText: {
      color: "black"
-   },
-   addItineraryText: {
-     backgroundColor: "yellow",
-     color: "black",
-     width: 10
    },
    homeButton: {
      margin: 20

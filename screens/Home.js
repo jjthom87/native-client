@@ -44,6 +44,9 @@ const HomeScreen = ({ navigation, route }) => {
         <TouchableOpacity style = {styles.createItineraryButton}>
            <Text onPress={() => navigation.push('Search Users Itineraries')} style = {styles.createItineraryButtonText}>Search Users Itineraries</Text>
         </TouchableOpacity>
+        <TouchableOpacity style = {styles.createItineraryButton}>
+           <Text onPress={() => navigation.push('List Shared Itineraries')} style = {styles.createItineraryButtonText}>List Shared Itineraries</Text>
+        </TouchableOpacity>
         <Button
           title="Logout"
           buttonStyle={styles.logoutButton}
