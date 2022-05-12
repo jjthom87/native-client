@@ -68,13 +68,15 @@ const ListItinerariesScreen = ({ navigation, route }) => {
       return (
         <View>
           <TouchableOpacity style = {styles.itineraryNameButton}>
-             <Text onPress={() => this.handleItineraryClick(itinerary.name)} style = {styles.itineraryNameText}>{itinerary.name}</Text>
+             <Text onPress={() => this.handleItineraryClick(itinerary.name)} style = {styles.itineraryNameText}>{itinerary.name} <Text onPress = {() => this.handleShareClick(itinerary)} style = {styles.shareText}>Share</Text></Text>
              {showItinerary(itinerary)}
           </TouchableOpacity>
-
         </View>
       )
     })
+  }
+  handleShareClick = (itinerary) => {
+    navigation.push("Share Itineraries", {itinerary: itinerary})
   }
   render: {
     return (
@@ -106,6 +108,10 @@ const styles = StyleSheet.create({
    },
    itineraryNameText: {
      color: "black"
+   },
+   shareText: {
+     color: "blue",
+     backgroundColor: "yellow"
    },
    homeButton: {
      margin: 20

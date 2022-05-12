@@ -11,8 +11,9 @@ import CreateItinerary from './screens/CreateItinerary.js';
 import ListItineraries from './screens/ListItineraries.js';
 import ListUsersItineraries from './screens/ListUsersItineraries.js';
 import SearchUsersItineraries from './screens/SearchUsersItineraries.js';
+import ShareItineraries from './screens/ShareItineraries.js';
 import ListSharedItineraries from './screens/ListSharedItineraries.js';
-
+import PendingItineraries from './screens/PendingItineraries.js';
 
 const App = () => {
   return (
@@ -31,6 +32,8 @@ const App = () => {
         <Stack.Screen name="List Users Itineraries" component={ListUsersItineraries} />
         <Stack.Screen name="Search Users Itineraries" component={SearchUsersItineraries} />
         <Stack.Screen name="List Shared Itineraries" component={ListSharedItineraries} />
+        <Stack.Screen name="Share Itineraries" component={ShareItineraries} />
+        <Stack.Screen name="Pending Itineraries" component={PendingItineraries} />
       </Stack.Navigator>
     </NavigationContainer>
   );

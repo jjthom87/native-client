@@ -3,18 +3,27 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet, TouchableHighlight
 import axios from 'axios';
 import * as Keychain from 'react-native-keychain';
 
-const ListSharedItinerariesScreen = ({ navigation, route }) => {
+const PendingItinerariesScreen = ({ navigation, route }) => {
   const [itineraries, setItineraries] = useState([]);
-  const [authUser, setAuthUser] = useState(null);
+  const [authUser, setAuthUser] = useState({});
   const [initialItineraryLoad, setInitialItineraryLoad] = useState(false)
   const [itineraryToShow, setItineraryToShow] = useState('')
 
   useEffect(() => {
+
     if(!initialItineraryLoad){
       Keychain.getGenericPassword().then((credentials) => {
+
         var {username, password} = credentials;
-        setAuthUser(username)
-        axios.get('http://localhost:7000/api/itinerary/shared?approved=true', {
+        axios.get('http://localhost:7000/api/signed-in', {
+          headers: {authorization: password}
+        }).then((response) => {
+          setAuthUser(response.data.user)
+        }).catch((err) => {
+          navigation.push("Main")
+        })
+
+        axios.get('http://localhost:7000/api/itinerary/shared?approved=false', {
           headers: {authorization: password}
         }).then((response) => {
           if(response.data.itineraries.length > 0){
@@ -27,11 +36,12 @@ const ListSharedItinerariesScreen = ({ navigation, route }) => {
           }
           setInitialItineraryLoad(true)
         }).catch((err) => {
-          console.error(err)
-        })
-      })
+          console.log(err)
+        });
+
+      });
     }
-  })
+  },[itineraries])
   signOut = () => {
     Keychain.resetGenericPassword().then((res) => {
       axios.delete("http://localhost:7000/api/logout").then((response) => {
@@ -43,46 +53,51 @@ const ListSharedItinerariesScreen = ({ navigation, route }) => {
       console.log("Error during keychain reset")
     })
   }
-  handleItineraryClick = (itineraryName) => {
-    itineraries.forEach((itinerary) => {
-      if(itinerary.name == itineraryName){
-        if(itinerary.name != itineraryToShow){
-          setItineraryToShow(itineraryName)
-        } else {
-          setItineraryToShow("")
-        }
-      }
-    })
-    setItineraries(itineraries)
-  }
-  showItinerary = (itinerary) => {
-    const display = itinerary.name == itineraryToShow ? "flex" : "none"
-    return itinerary.details.map((place) => {
-      return (
-        <View style={{backgroundColor: 'red'}}>
-         <Text
-          style={{display: display, margin: 5}}
-         >{place.name}</Text>
-        </View>
-      )
+  setApproval = (itinerary_id, approved) => {
+    Keychain.getGenericPassword().then((credentials) => {
+      var {username, password} = credentials;
+      axios.put("http://localhost:7000/api/itinerary/shared",
+          {
+            requester_id: parseInt(authUser.id),
+            itinerary_id: parseInt(itinerary_id),
+            approved: approved
+          }, {
+            headers: {
+              authorization: password,
+              'Content-Type': 'application/json'
+          }
+        }).then((response) => {
+          const updatedItineraries = itineraries.filter((itinerary) => itinerary.id != response.data.itinerary_id)
+          setItineraries(updatedItineraries)
+      }).catch((error) => {
+        console.log(error)
+        console.log("Error during Signin")
+      })
     })
   }
   mapItineraries = () => {
-    return itineraries.map((itinerary) => {
+    if(itineraries.length > 0){
+      return itineraries.map((itinerary) => {
+        return (
+          <View>
+            <TouchableOpacity style = {styles.itineraryNameButton}>
+               <Text style = {styles.itineraryNameText}>{itinerary.name} - Owned by {itinerary.owner_email}</Text>
+               <Text style={{color: "green"}} onPress={() => this.setApproval(itinerary.id, true)}>Approve</Text>
+               <Text style={{color: "red"}} onPress={() => this.setApproval(itinerary.id, false)}>Reject</Text>
+            </TouchableOpacity>
+          </View>
+        )
+      })
+    } else {
       return (
-        <View>
-          <TouchableOpacity style = {styles.itineraryNameButton}>
-             <Text onPress={() => this.handleItineraryClick(itinerary.name)} style = {styles.itineraryNameText}>{itinerary.name} - Owned by {itinerary.owner_email}</Text>
-             {showItinerary(itinerary)}
-          </TouchableOpacity>
-        </View>
+        <View></View>
       )
-    })
+    }
   }
   render: {
     return (
       <View style={styles.container}>
-        <Text>{authUser}'s Itineraries</Text>
+        <Text>{authUser.email}'s Pending Itineraries</Text>
         {mapItineraries()}
         <TouchableOpacity style = {styles.homeButton}>
            <Text onPress={() => navigation.push('Home')} style = {styles.homeButtonText}>Home</Text>
@@ -96,14 +111,14 @@ const ListSharedItinerariesScreen = ({ navigation, route }) => {
     )
   }
 }
-export default ListSharedItinerariesScreen
+export default PendingItinerariesScreen
 
 const styles = StyleSheet.create({
    container: {
        paddingTop: 23
    },
    itineraryNameButton: {
-     backgroundColor: "#501fe0",
+     backgroundColor: "pink",
      padding: 10,
      margin: 15
    },

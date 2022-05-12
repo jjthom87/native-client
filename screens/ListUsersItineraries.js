@@ -76,7 +76,8 @@ const ListUsersItinerariesScreen = ({ navigation, route }) => {
           {
             owner_id: parseInt(route.params.user.id),
             requester_id: parseInt(authUser.id),
-            itinerary_id: parseInt(itinerary_id)
+            itinerary_id: parseInt(itinerary_id),
+            approved: true
           }, {
             headers: {
               authorization: password,

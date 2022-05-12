@@ -6,6 +6,7 @@ import * as Keychain from 'react-native-keychain';
 const HomeScreen = ({ navigation, route }) => {
   const [authUser, setAuthUser] = useState(false);
   const [user, setUser] = useState('');
+  const [pendingSharedItineraries, setPendingSharedItineraries] = useState(false)
 
   useEffect(() => {
     Keychain.getGenericPassword().then((credentials) => {
@@ -17,6 +18,14 @@ const HomeScreen = ({ navigation, route }) => {
         setUser(response.data.user)
       }).catch((err) => {
         navigation.push("Main")
+      })
+
+      axios.get('http://localhost:7000/api/itinerary/shared?approved=false', {
+        headers: {authorization: password}
+      }).then((response) => {
+        setPendingSharedItineraries(response.data.itineraries.length > 0)
+      }).catch((err) => {
+        console.log(err)
       })
     })
   }, [authUser])
@@ -30,6 +39,21 @@ const HomeScreen = ({ navigation, route }) => {
     }).catch((err) => {
       console.log("Error during keychain reset")
     })
+  }
+  showPendingItinerariesScreen = () => {
+    if(pendingSharedItineraries){
+      return (
+        <View>
+          <TouchableOpacity style = {styles.pendingItinerariesButton}>
+             <Text onPress={() => navigation.push('Pending Itineraries')} style = {styles.createItineraryButtonText}>Pending Itineraries</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    } else {
+      return (
+        <View></View>
+      )
+    }
   }
   render: {
     return (
@@ -47,6 +71,7 @@ const HomeScreen = ({ navigation, route }) => {
         <TouchableOpacity style = {styles.createItineraryButton}>
            <Text onPress={() => navigation.push('List Shared Itineraries')} style = {styles.createItineraryButtonText}>List Shared Itineraries</Text>
         </TouchableOpacity>
+        {showPendingItinerariesScreen()}
         <Button
           title="Logout"
           buttonStyle={styles.logoutButton}
@@ -64,6 +89,12 @@ const styles = StyleSheet.create({
    },
    createItineraryButton: {
      backgroundColor: "#501fe0",
+     padding: 10,
+     margin: 15,
+     height: 40,
+   },
+   pendingItinerariesButton: {
+     backgroundColor: "red",
      padding: 10,
      margin: 15,
      height: 40,
