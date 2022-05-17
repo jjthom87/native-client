@@ -48,8 +48,11 @@ const ShareItineraries = ({ navigation, route }) => {
           {
             owner_id: parseInt(authUser.id),
             requester_id: parseInt(user.id),
+            requester_email: user.email,
             itinerary_id: parseInt(route.params.itinerary.id),
-            approved: false
+            itinerary_name: route.params.itinerary.name,
+            approved: false,
+            shareRequest: true
           }, {
             headers: {
               authorization: password,

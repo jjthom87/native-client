@@ -19,7 +19,7 @@ const SignupScreen = ({ navigation, route }) => {
         if(response.data.user){
           var {email, token} = response.data.user;
           Keychain.setGenericPassword(email, token).then(function() {
-            navigation.navigate('Main')
+            navigation.navigate('Home')
           }).catch((error) => {
             console.log(error)
             console.log("Error during Keychain Signup");

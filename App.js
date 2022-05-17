@@ -15,9 +15,24 @@ import ShareItineraries from './screens/ShareItineraries.js';
 import ListSharedItineraries from './screens/ListSharedItineraries.js';
 import PendingItineraries from './screens/PendingItineraries.js';
 
+const linking = {
+  prefixes: ['recs://'],
+  config: {
+    initialRouteName: 'Main',
+    screens: {
+      Home: {
+        path: 'main'
+      },
+      Signin: {
+        path: 'signin'
+      }
+    }
+  }
+};
+
 const App = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator>
         <Stack.Screen
           name="Main"
