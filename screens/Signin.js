@@ -1,5 +1,6 @@
-import React, { Component, useEffect } from 'react'
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, TouchableHighlight, Button } from 'react-native'
+import React, { Component, useEffect } from 'react';
+import { Image, StyleSheet, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+import { Button, Text, TextInput } from "@react-native-material/core";
 import axios from 'axios';
 import * as Keychain from 'react-native-keychain';
 
@@ -40,12 +41,15 @@ const SigninScreen = ({ navigation, route }) => {
    render: {
       return (
          <View style = {styles.container}>
-             <Button
-               title="Go to Home Page"
-               onPress={() =>
-                 navigation.push('Main')
-               }
-             />
+             <TouchableOpacity style={styles.homeImageStyle} onPress={()=>navigation.push('Main')}>
+               <Image
+                 style={styles.homeImage}
+                 source={require('../images/home.jpeg')}
+                 onPress={() =>
+                   navigation.push('Main')
+                 }
+               />
+              </TouchableOpacity>
             <TextInput style = {styles.input}
                underlineColorAndroid = "transparent"
                placeholder = "Email"
@@ -53,7 +57,6 @@ const SigninScreen = ({ navigation, route }) => {
                autoCapitalize = "none"
                onChangeText = {this.handleEmail}
              />
-
             <TextInput style = {styles.input}
                underlineColorAndroid = "transparent"
                placeholder = "Password"
@@ -79,6 +82,14 @@ export default SigninScreen
 const styles = StyleSheet.create({
    container: {
       paddingTop: 23
+   },
+   homeImage: {
+     height: 75,
+     width: 75
+   },
+   homeImageStyle: {
+     justifyContent: 'center',
+     alignItems: 'center'
    },
    input: {
       margin: 15,

@@ -1,5 +1,7 @@
 import React, { Component, useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Button } from "@react-native-material/core";
+
 import * as Keychain from 'react-native-keychain';
 import axios from 'axios';
 
@@ -47,32 +49,54 @@ const MainScreen = ({ navigation, route }) => {
   }
   render: {
     return (
-      <View>
-        <Button
-          title="Sign Up"
-          onPress={() =>
-            navigation.push('Signup')
-          }
-        />
-        <Button
-          title="Sign In"
-          onPress={() =>
-            navigation.push('Signin')
-          }
-        />
+      <View style={styles.container}>
+        <Text style={styles.titleText}>Save and Make Reccommendations</Text>
+        <View style={styles.navButtonsSection}>
+          <Button
+            title="Sign Up"
+            style={styles.navButtons}
+            onPress={() =>
+              navigation.push('Signup')
+            }
+          />
+          <Button
+            title="Sign In"
+            style={styles.navButtons}
+            onPress={() =>
+              navigation.push('Signin')
+            }
+          />
+        </View>
       </View>
     )
   }
 };
 
 const styles = StyleSheet.create({
-   logoutButton: {
-      backgroundColor: 'red',
-      color: 'white',
-      padding: 10,
-      margin: 15,
-      height: 40,
-   }
+  container: {
+    marginTop: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  titleText: {
+    fontFamily: "Cochin",
+    fontSize: 20,
+    fontWeight: "bold"
+  },
+  logoutButton: {
+    backgroundColor: 'red',
+    color: 'white',
+    padding: 10,
+    margin: 15,
+    height: 40,
+  },
+  navButtons: {
+    margin: 10,
+    width: 200
+  },
+  navButtonsSection: {
+    marginTop: 25,
+  }
 })
 
 export default MainScreen
